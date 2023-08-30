@@ -43,130 +43,120 @@ resource "aws_internet_gateway" "access-vpn-ig" {
   vpc_id = aws_vpc.access-vpn.id
 }
 
-resource "aws_internet_gateway_attachment" "Access-ig-attachment" {
-  internet_gateway_id = aws_internet_gateway.access-vpn-ig.id
-  vpc_id              = aws_vpc.access-vpn.id
-}
 
 resource "aws_route_table" "vpn_pulic_access_rt" {
-    # arn              = "arn:aws:ec2:eu-west-1:295232774059:route-table/rtb-04d15773f03925eb5"
-    # id               = "rtb-04d15773f03925eb5"
-    # owner_id         = "295232774059"
-    propagating_vgws = []
-    route            = [
-        {
-            carrier_gateway_id         = ""
-            cidr_block                 = "0.0.0.0/0"
-            core_network_arn           = ""
-            destination_prefix_list_id = ""
-            egress_only_gateway_id     = ""
-            gateway_id                 = "igw-00b855bdcbc9dc92b"
-            ipv6_cidr_block            = ""
-            local_gateway_id           = ""
-            nat_gateway_id             = ""
-            network_interface_id       = ""
-            transit_gateway_id         = ""
-            vpc_endpoint_id            = ""
-            vpc_peering_connection_id  = ""
-        },
-    ]
-    tags             = {
-        "Name" = "Public-Access-IG"
-    }
-    tags_all         = {
-        "Name" = "Public-Access-IG"
-    }
-    vpc_id           = "vpc-087ab407ed6976c0b"
+
+  route {
+    gateway_id = aws_internet_gateway.access-vpn-ig.id
+    cidr_block = "0.0.0.0/0"
+  }
+  route {
+    gateway_id = "local"
+    cidr_block = aws_vpc.access-vpn.cidr_block
+  }
+
+  tags = {
+    "Name" = "Public-Access-IG"
+  }
+  tags_all = {
+    "Name" = "Public-Access-IG"
+  }
+  vpc_id = aws_vpc.access-vpn.id
+}
+
+resource "aws_route_table_association" "Public_subnet_assoc" {
+  subnet_id      = aws_subnet.Public-Access-1a.id
+  route_table_id = aws_route_table.vpn_pulic_access_rt.id
 }
 
 resource "aws_security_group" "vpn-instance-sg" {
-    description = "OpenVPN Access Server-2.11.3-AutogenByAWSMP--1 created 2023-08-26T10:18:34.552Z"
-    egress      = [
-        {
-            cidr_blocks      = [
-                "0.0.0.0/0",
-            ]
-            description      = ""
-            from_port        = 0
-            ipv6_cidr_blocks = []
-            prefix_list_ids  = []
-            protocol         = "-1"
-            security_groups  = []
-            self             = false
-            to_port          = 0
-        },
-    ]
-    ingress     = [
-        {
-            cidr_blocks      = [
-                "0.0.0.0/0",
-            ]
-            description      = ""
-            from_port        = 1194
-            ipv6_cidr_blocks = []
-            prefix_list_ids  = []
-            protocol         = "udp"
-            security_groups  = []
-            self             = false
-            to_port          = 1194
-        },
-        {
-            cidr_blocks      = [
-                "0.0.0.0/0",
-            ]
-            description      = ""
-            from_port        = 22
-            ipv6_cidr_blocks = []
-            prefix_list_ids  = []
-            protocol         = "tcp"
-            security_groups  = []
-            self             = false
-            to_port          = 22
-        },
-        {
-            cidr_blocks      = [
-                "0.0.0.0/0",
-            ]
-            description      = ""
-            from_port        = 443
-            ipv6_cidr_blocks = []
-            prefix_list_ids  = []
-            protocol         = "tcp"
-            security_groups  = []
-            self             = false
-            to_port          = 443
-        },
-        {
-            cidr_blocks      = [
-                "0.0.0.0/0",
-            ]
-            description      = ""
-            from_port        = 943
-            ipv6_cidr_blocks = []
-            prefix_list_ids  = []
-            protocol         = "tcp"
-            security_groups  = []
-            self             = false
-            to_port          = 943
-        },
-        {
-            cidr_blocks      = [
-                "0.0.0.0/0",
-            ]
-            description      = ""
-            from_port        = 945
-            ipv6_cidr_blocks = []
-            prefix_list_ids  = []
-            protocol         = "tcp"
-            security_groups  = []
-            self             = false
-            to_port          = 945
-        },
-    ]
-    name        = "OpenVPN Access Server-2.11.3-AutogenByAWSMP--1"
-    tags        = {}
-    tags_all    = {}
-    vpc_id      = aws_vpc.access-vpn.id
+  description = "OpenVPN Access Server-2.11.3-AutogenByAWSMP--1 created 2023-08-26T10:18:34.552Z"
+  egress = [
+    {
+      cidr_blocks = [
+        "0.0.0.0/0",
+      ]
+      description      = ""
+      from_port        = 0
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "-1"
+      security_groups  = []
+      self             = false
+      to_port          = 0
+    },
+  ]
+  ingress = [
+    {
+      cidr_blocks = [
+        "0.0.0.0/0",
+      ]
+      description      = ""
+      from_port        = 1194
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "udp"
+      security_groups  = []
+      self             = false
+      to_port          = 1194
+    },
+    {
+      cidr_blocks = [
+        "0.0.0.0/0",
+      ]
+      description      = ""
+      from_port        = 22
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "tcp"
+      security_groups  = []
+      self             = false
+      to_port          = 22
+    },
+    {
+      cidr_blocks = [
+        "0.0.0.0/0",
+      ]
+      description      = ""
+      from_port        = 443
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "tcp"
+      security_groups  = []
+      self             = false
+      to_port          = 443
+    },
+    {
+      cidr_blocks = [
+        "0.0.0.0/0",
+      ]
+      description      = ""
+      from_port        = 943
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "tcp"
+      security_groups  = []
+      self             = false
+      to_port          = 943
+    },
+    {
+      cidr_blocks = [
+        "0.0.0.0/0",
+      ]
+      description      = ""
+      from_port        = 945
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "tcp"
+      security_groups  = []
+      self             = false
+      to_port          = 945
+    },
+  ]
+  name     = "OpenVPN Access Server-2.11.3-AutogenByAWSMP--1"
+  tags     = {}
+  tags_all = {}
+  vpc_id   = aws_vpc.access-vpn.id
 }
 
 resource "aws_instance" "VPN-Server-Instance" {
@@ -191,7 +181,6 @@ resource "aws_instance" "VPN-Server-Instance" {
   root_block_device {
     delete_on_termination = true
     encrypted             = false
-    iops                  = 100
     tags                  = {}
     volume_size           = 8
     volume_type           = "gp2"

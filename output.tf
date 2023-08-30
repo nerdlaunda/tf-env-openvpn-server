@@ -11,3 +11,7 @@ output "Private-Key-OpenSSH" {
 output "ami" {
   value = data.aws_ami.Openvpn-AMI.image_id
 }
+
+output "Public-IP" {
+  value = aws_instance.VPN-Server-Instance.public_ip
+}
